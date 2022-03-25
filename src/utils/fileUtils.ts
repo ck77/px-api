@@ -6,9 +6,7 @@ import { IStore } from '../interface/IStore';
 const SOURCE_FILE_PATH = "D:/farmer/px-api/src/source";
 const DIST_FILE_PATH = "D:/farmer/px-api/src/report";
 
-export const convertExcelFileToJson = (date: number): any => {
-    const sourceFileName = date + '.xlsx';
-    const sourceFilePath = path.join(SOURCE_FILE_PATH, sourceFileName);
+export const convertExcelFileToJson = (sourceFilePath: string): any => {
 
     // Read the file using pathname
     const file = xlsx.readFile(sourceFilePath);
@@ -36,6 +34,17 @@ export const generateReportJSONFile = (report: Array<IStore>, date: number) => {
 
     try {
         fs.writeFileSync(distFilePath, JSON.stringify(report))
+    } catch (err) {
+        console.error(err)
+    }
+}
+
+export const generateStoreProductJSONFile = (data: any, month: number) => {
+    const fileName = month + '_store_product.json'
+    const distFilePath = path.join(DIST_FILE_PATH, fileName);
+
+    try {
+        fs.writeFileSync(distFilePath, JSON.stringify(data))
     } catch (err) {
         console.error(err)
     }

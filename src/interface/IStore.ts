@@ -7,11 +7,11 @@ export interface IStore {
 export interface IProduct {
     id: string;
     name: string;
-    sales: number;
-    amount: number;
-    defective: number;
-    restock: number;
-    stock: number;
+    sales?: number;
+    amount?: number;
+    defective?: number;
+    restock?: number;
+    stock?: number;
 }
 
 export interface ISourceData {

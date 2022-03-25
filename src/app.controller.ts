@@ -10,6 +10,11 @@ export class AppController {
     return this.appService.getHello();
   }
 
+  @Get('store/:month')
+  getStoreProduct(@Param('month') month: number): any {
+    return this.appService.getStoreProduct(month);
+  }
+
   @Get('report/:date')
   getDailyReport(@Param('date') date: number): any {
     return this.appService.getReport(date);

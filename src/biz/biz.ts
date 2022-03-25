@@ -2,9 +2,9 @@
 import { ISourceData, ISalesItem, IStore, IProduct } from '../interface/IStore';
 import { getCurrentSalesItem, getPreReport } from '../utils/fileUtils';
 
-const START_DATE = 20220320;
+const START_DATE = 20220314;
 
-export const getReport = (sourceDatas: Array<ISourceData>, date: number) => {
+export const buildReport = (sourceDatas: Array<ISourceData>, date: number) => {
     const stores = getStores(sourceDatas);
 
     const currentSalesItem = getCurrentSalesItem() as Array<ISalesItem>;
@@ -40,10 +40,6 @@ export const getReport = (sourceDatas: Array<ISourceData>, date: number) => {
                 stock: 0
             }
 
-            if (productInfo.restock > 0) {
-                productInfo.stock = productInfo.restock - productInfo.sales
-            }
-
             storeInfo.products.push(productInfo);
         });
 
@@ -54,33 +50,79 @@ export const getReport = (sourceDatas: Array<ISourceData>, date: number) => {
         return x.products.length > 0
     });
 
-    // if (date !== 20220320) {
-    //     const preReport = getPreReport(date) as Array<IStore>;
+    if (date != START_DATE) {
+        const preReport = getPreReport(date) as Array<IStore>;
 
-    //     report.forEach(store => {
+        report.forEach(store => {
 
-    //         const preReportStore = preReport.find((x) => {
-    //             return x.id = store.id
-    //         });
+            const preReportStore = preReport.find(x => x.id == store.id);
+            if (!preReportStore || preReportStore.products.length == 0) {
+                return;
+            }
 
-    //         if (store.products.length > 0) {
-    //             store.products.forEach((product) => {
+            store.products.forEach((product) => {
 
-    //                 if (preReportStore != null && preReportStore.products.length > 0) {
-    //                     const preProduct = preReportStore.products.filter((x) => {
-    //                         return x.id == product.id
-    //                     });
+                const preProduct = preReportStore.products.find(x => x.id == product.id);
+                if (!preProduct) {
+                    return;
+                }
 
-    //                     // if (preProduct.sales > 0) {
-    //                     //     product.stock = preProduct.stock - product.sales;
-    //                     // }
-    //                 }
-    //             });
-    //         }
-    //     });
-    // }
+                if (preProduct.stock > 0) {
+                    product.stock = preProduct.stock - product.sales - product.defective;
+                }
+
+                if (product.restock > 0) {
+                    product.stock = product.restock - product.sales;
+                }
+            });
+        });
+    }
 
     return report;
+}
+
+export const buildStoreProduct = (sourceDatas: Array<any>) => {
+
+    // read currentSalesItem
+    const currentSalesItem = getCurrentSalesItem() as Array<ISalesItem>;
+    const currentSalesItemId = currentSalesItem.map((x) => {
+        return x.id
+    });
+
+    let stores: Array<IStore> = [];
+
+    sourceDatas.forEach(data => {
+
+        const store = stores.find(x => x.id == data.__EMPTY_4);
+
+        if (store) {
+            if (currentSalesItemId.includes(data.__EMPTY_1)) {
+                store.products.push({
+                    id: data.__EMPTY_1,
+                    name: data.__EMPTY_2
+                });
+            }
+        } else {
+            let tempStore: IStore = {
+                id: data.__EMPTY_4,
+                name: data.__EMPTY_5,
+                products: []
+            }
+
+            if (currentSalesItemId.includes(data.__EMPTY_1)) {
+                tempStore.products.push({
+                    id: data.__EMPTY_1,
+                    name: data.__EMPTY_2
+                });
+            }
+
+            stores.push(tempStore);
+        }
+    });
+
+    stores = stores.filter(x => x.products.length > 0);
+
+    return stores;
 }
 
 const getStores = (sourceDatas: Array<ISourceData>) => {
