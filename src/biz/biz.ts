@@ -1,55 +1,42 @@
 
 import { ISourceData, ISalesItem, IStore, IProduct } from '../interface/IStore';
-import { getCurrentSalesItem, getPreReport } from '../utils/fileUtils';
+import { getSalesItemJSON, getStoreProductJSON, getPreReport } from '../utils/fileUtils';
 
 const START_DATE = 20220314;
 
-export const buildReport = (sourceDatas: Array<ISourceData>, date: number) => {
-    const stores = getStores(sourceDatas);
-
-    const currentSalesItem = getCurrentSalesItem() as Array<ISalesItem>;
-    const currentSalesItemId = currentSalesItem.map((x) => {
-        return x.id
-    });
+export const buildReport = (sourceDatas: Array<ISourceData>, date: number, month: number) => {
+    let stores = getStoreProductJSON(month) as Array<IStore>;
 
     let report = stores.map((store) => {
 
-        let storeInfo: IStore = {
-            id: store.id,
-            name: store.name,
-            products: []
-        }
+        let tempStore: IStore = { ...store };
 
-        let filtered = sourceDatas.filter((x) => {
-            return x.門市代號 == store.id
+        const sourceProducts = sourceDatas.filter(x => x.門市代號 == store.id);
+
+        let products = store.products.map((product) => {
+
+            let tempProduct: IProduct = { ...product }
+
+            sourceProducts.forEach(product => {
+                if (product.貨號 == tempProduct.id) {
+                    tempProduct.sales = product.銷售量;
+                    tempProduct.amount = product.銷售金額;
+                    tempProduct.defective = product.丟棄量;
+                    tempProduct.restock = product.進貨量;
+                    tempProduct.stock = 0;
+                }
+            });
+
+            return tempProduct;
+
         });
 
-        filtered = filtered.filter((x) => {
-            return currentSalesItemId.includes(x.貨號)
-        });
+        tempStore.products = products;
 
-        filtered.forEach(x => {
-
-            let productInfo: IProduct = {
-                id: x.貨號,
-                name: x.商品名稱,
-                sales: x.銷售量,
-                amount: x.銷售金額,
-                defective: x.丟棄量,
-                restock: x.進貨量,
-                stock: 0
-            }
-
-            storeInfo.products.push(productInfo);
-        });
-
-        return storeInfo
+        return tempStore;
     });
 
-    report = report.filter((x) => {
-        return x.products.length > 0
-    });
-
+    // count stock
     if (date != START_DATE) {
         const preReport = getPreReport(date) as Array<IStore>;
 
@@ -84,7 +71,7 @@ export const buildReport = (sourceDatas: Array<ISourceData>, date: number) => {
 export const buildStoreProduct = (sourceDatas: Array<any>) => {
 
     // read currentSalesItem
-    const currentSalesItem = getCurrentSalesItem() as Array<ISalesItem>;
+    const currentSalesItem = getSalesItemJSON() as Array<ISalesItem>;
     const currentSalesItemId = currentSalesItem.map((x) => {
         return x.id
     });
@@ -121,21 +108,6 @@ export const buildStoreProduct = (sourceDatas: Array<any>) => {
     });
 
     stores = stores.filter(x => x.products.length > 0);
-
-    return stores;
-}
-
-const getStores = (sourceDatas: Array<ISourceData>) => {
-    let uniqueObjArray = [
-        ...new Map(sourceDatas.map((item) => [item["門市代號"], item])).values(),
-    ];
-
-    const stores = uniqueObjArray.map((x) => {
-        return {
-            id: x.門市代號,
-            name: x.門市名稱
-        }
-    });
 
     return stores;
 }

@@ -50,8 +50,20 @@ export const generateStoreProductJSONFile = (data: any, month: number) => {
     }
 }
 
-export const getCurrentSalesItem = () => {
-    return JSON.parse(fs.readFileSync(path.join(SOURCE_FILE_PATH, 'currentSalesItem.json'), 'utf8'));
+export const getSalesItemJSON = () => {
+    const fileName = 'salesItem.json';
+    const filePath = path.join(SOURCE_FILE_PATH, fileName);
+    return getJsonFile(filePath);
+}
+
+export const getStoreProductJSON = (month: number) => {
+    const fileName = month + '_store_product.json'
+    const filePath = path.join(DIST_FILE_PATH, fileName);
+    return getJsonFile(filePath);
+}
+
+const getJsonFile = (filePath: string) => {
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }
 
 export const getPreReport = (date: number) => {

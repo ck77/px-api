@@ -15,8 +15,8 @@ export class AppController {
     return this.appService.getStoreProduct(month);
   }
 
-  @Get('report/:date')
-  getDailyReport(@Param('date') date: number): any {
-    return this.appService.getReport(date);
+  @Get('report/:month/:date')
+  getDailyReport(@Param('month') month: number, @Param('date') date: number): any {
+    return this.appService.getReport(month, date);
   }
 }

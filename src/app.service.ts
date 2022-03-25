@@ -13,27 +13,21 @@ export class AppService {
     return 'Hello World!';
   }
 
-  getReport(date: number) {
+  getReport(month: number, date: number) {
     const sourceFileName = date + '.xlsx';
     const sourceFilePath = path.join(this.SOURCE_FILE_PATH, sourceFileName);
-
     const sourceDatas = convertExcelFileToJson(sourceFilePath) as Array<ISourceData>;
-    const report = buildReport(sourceDatas, date);
-
+    const report = buildReport(sourceDatas, date, month);
     generateReportJSONFile(report, date)
-
     return report;
   }
 
   getStoreProduct(month: number) {
     const sourceFileName = month + '.xlsx';
     const sourceFilePath = path.join(this.SOURCE_FILE_PATH, sourceFileName);
-
     const sourceDatas = convertExcelFileToJson(sourceFilePath);
-
     const storeProduct = buildStoreProduct(sourceDatas);
     generateStoreProductJSONFile(storeProduct, month);
-
     return storeProduct;
   }
 }
