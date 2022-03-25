@@ -1,11 +1,12 @@
 import * as path from 'path';
 import * as xlsx from 'xlsx';
 import * as fs from 'fs';
+import { IStore } from '../interface/IStore';
 
 const SOURCE_FILE_PATH = "D:/farmer/px-api/src/source";
 const DIST_FILE_PATH = "D:/farmer/px-api/src/report";
 
-export const convertExcelFileToJson = (date: string) => {
+export const convertExcelFileToJson = (date: number): any => {
     const sourceFileName = date + '.xlsx';
     const sourceFilePath = path.join(SOURCE_FILE_PATH, sourceFileName);
 
@@ -29,7 +30,8 @@ export const convertExcelFileToJson = (date: string) => {
     return parsedData;
 }
 
-export const generateReportJSONFile = (report: any, fileName: string) => {
+export const generateReportJSONFile = (report: Array<IStore>, date: number) => {
+    const fileName = date + "_report.json"
     const distFilePath = path.join(DIST_FILE_PATH, fileName);
 
     try {
@@ -37,4 +39,13 @@ export const generateReportJSONFile = (report: any, fileName: string) => {
     } catch (err) {
         console.error(err)
     }
+}
+
+export const getCurrentSalesItem = () => {
+    return JSON.parse(fs.readFileSync(path.join(SOURCE_FILE_PATH, 'currentSalesItem.json'), 'utf8'));
+}
+
+export const getPreReport = (date: number) => {
+    const preReportFile = (date - 1).toString() + '_report.json';
+    return JSON.parse(fs.readFileSync(path.join(DIST_FILE_PATH, preReportFile), 'utf8'));
 }

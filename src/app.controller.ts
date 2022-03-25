@@ -11,7 +11,7 @@ export class AppController {
   }
 
   @Get('report/:date')
-  getDailyReport(@Param('date') date: string): any {
+  getDailyReport(@Param('date') date: number): any {
     return this.appService.getReport(date);
   }
 }
