@@ -1,12 +1,13 @@
 import * as path from 'path';
 import * as xlsx from 'xlsx';
 import * as fs from 'fs';
-import { IStore } from '../interface/IStore';
+import axios from 'axios';
 
 const SOURCE_FILE_PATH = "D:/farmer/px-api/src/source";
 const DIST_FILE_PATH = "D:/farmer/px-api/src/report";
 const ANALYSIS_FILE_PATH = "D:/farmer/px-api/src/report/analysis";
 
+// unuse
 export const convertExcelFileToJson = (sourceFilePath: string): any => {
 
     // Read the file using pathname
@@ -29,28 +30,6 @@ export const convertExcelFileToJson = (sourceFilePath: string): any => {
     return parsedData;
 }
 
-export const generateReportJSONFile = (report: Array<IStore>, date: number) => {
-    const fileName = date + "_report.json"
-    const distFilePath = path.join(DIST_FILE_PATH, fileName);
-
-    try {
-        fs.writeFileSync(distFilePath, JSON.stringify(report))
-    } catch (err) {
-        console.error(err)
-    }
-}
-
-export const generateStoreProductJSONFile = (data: any, month: number) => {
-    const fileName = month + '_store_product.json'
-    const distFilePath = path.join(DIST_FILE_PATH, fileName);
-
-    try {
-        fs.writeFileSync(distFilePath, JSON.stringify(data))
-    } catch (err) {
-        console.error(err)
-    }
-}
-
 export const generateProductAnalysisJSONFile = (data: any, date: number) => {
     const fileName = date + '.json'
     const distFilePath = path.join(DIST_FILE_PATH, fileName);
@@ -62,18 +41,7 @@ export const getSalesItemJSON = () => {
     return getJsonFile(filePath);
 }
 
-export const getStoreProductJSON = (month: number) => {
-    const fileName = month + '_store_product.json'
-    const filePath = path.join(DIST_FILE_PATH, fileName);
-    return getJsonFile(filePath);
-}
-
-export const getPreReport = (date: number) => {
-    const preReportFile = (date - 1).toString() + '_report.json';
-    return JSON.parse(fs.readFileSync(path.join(DIST_FILE_PATH, preReportFile), 'utf8'));
-}
-
-export const writeFile = (path: string, data: any) => {
+export const generateJsonFile = (path: string, data: any) => {
     try {
         fs.writeFileSync(path, JSON.stringify(data))
     } catch (err) {
@@ -100,6 +68,20 @@ export const parseBufferToJson = (data: any) => {
     return parsedData;
 }
 
+export const fetchXlsxFile = async (requestUrl: string) => {
+    const res = await axios({
+        url: requestUrl,
+        responseType: 'arraybuffer',
+        method: 'get',
+        headers: {
+            'Content-Type': 'blob',
+        }
+    });
+
+    return res.data;
+}
+
+// unuse
 const getJsonFile = (filePath: string) => {
     return JSON.parse(fs.readFileSync(filePath, 'utf8'));
 }

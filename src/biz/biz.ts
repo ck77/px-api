@@ -1,72 +1,6 @@
 
-import { ISourceData, ISalesItem, IStore, IProduct } from '../interface/IStore';
-import { getSalesItemJSON, getStoreProductJSON, getPreReport } from '../utils/fileUtils';
-
-const START_DATE = 20220314;
-
-export const buildReport = (sourceDatas: Array<ISourceData>, date: number, month: number) => {
-    let stores = getStoreProductJSON(month) as Array<IStore>;
-
-    let report = stores.map((store) => {
-
-        let tempStore: IStore = { ...store };
-
-        const sourceProducts = sourceDatas.filter(x => x.門市代號 == store.id);
-
-        let products = store.products.map((product) => {
-
-            let tempProduct: IProduct = { ...product }
-
-            sourceProducts.forEach(product => {
-                if (product.貨號 == tempProduct.id) {
-                    tempProduct.sales = product.銷售量;
-                    tempProduct.amount = product.銷售金額;
-                    tempProduct.defective = product.丟棄量;
-                    tempProduct.restock = product.進貨量;
-                    tempProduct.stock = 0;
-                }
-            });
-
-            return tempProduct;
-
-        });
-
-        tempStore.products = products;
-
-        return tempStore;
-    });
-
-    // count stock
-    if (date != START_DATE) {
-        const preReport = getPreReport(date) as Array<IStore>;
-
-        report.forEach(store => {
-
-            const preReportStore = preReport.find(x => x.id == store.id);
-            if (!preReportStore || preReportStore.products.length == 0) {
-                return;
-            }
-
-            store.products.forEach((product) => {
-
-                const preProduct = preReportStore.products.find(x => x.id == product.id);
-                if (!preProduct) {
-                    return;
-                }
-
-                if (preProduct.stock > 0) {
-                    product.stock = preProduct.stock - product.sales - product.defective;
-                }
-
-                if (product.restock > 0) {
-                    product.stock = product.restock - product.sales;
-                }
-            });
-        });
-    }
-
-    return report;
-}
+import { ISourceData, ISalesItem, IStore } from '../interface/IStore';
+import { getSalesItemJSON, fetchXlsxFile, parseBufferToJson } from '../utils/fileUtils';
 
 export const buildStoreProduct = (sourceDatas: Array<any>) => {
 
@@ -110,6 +44,46 @@ export const buildStoreProduct = (sourceDatas: Array<any>) => {
     stores = stores.filter(x => x.products.length > 0);
 
     return stores;
+}
+
+export const buildStockReport = async (sourceDatas: Array<ISourceData>, month: number) => {
+
+    const requestUrl = `http://b2b1.pxstore.com.tw/farmer/Dirstribution_Shp_export.ashx?BATCH_ID=${month}&FARMER_ID=4015`
+    const xlsxFile = await fetchXlsxFile(requestUrl);
+    const jsonData = parseBufferToJson(xlsxFile);
+    const stores = buildStoreProduct(jsonData);
+
+    const report = stores.map((store) => {
+
+        const storeGroup = sourceDatas.filter(x => x.門市代號 == store.id);
+
+        const products = store.products.map(product => {
+
+            const itemGroup = storeGroup.filter(x => x.貨號 == product.id);
+
+            const sales = itemGroup.map(x => x.銷售量).reduce((a, b) => a + b);
+            const restock = itemGroup.map(x => x.進貨量).reduce((a, b) => a + b);
+            const amount = itemGroup.map(x => x.銷售金額).reduce((a, b) => a + b);
+            const defective = itemGroup.map(x => x.丟棄量).reduce((a, b) => a + b);
+            const stock = restock - sales - defective;
+
+            return {
+                ...product,
+                sales,
+                amount,
+                defective,
+                restock,
+                stock
+            }
+        });
+
+        return {
+            ...store,
+            products
+        }
+    });
+
+    return report;
 }
 
 const productAnalysis = (sourceDatas: Array<ISourceData>) => {
