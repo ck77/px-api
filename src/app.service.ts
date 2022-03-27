@@ -19,8 +19,7 @@ export class AppService {
     const jsonData = parseBufferToJson(xlsxFile);
     const report = await buildStockReport(jsonData, month);
 
-    const fileName = `${end}_report.json`;
-    const filePath = path.join(this.DIST_FILE_PATH, fileName);
+    const filePath = path.join(this.DIST_FILE_PATH, 'report.json');
 
     generateJsonFile(filePath, report);
 
