@@ -111,3 +111,25 @@ export const buildStoreProduct = (sourceDatas: Array<any>) => {
 
     return stores;
 }
+
+const productAnalysis = (sourceDatas: Array<ISourceData>) => {
+    const currentSalesItem = getSalesItemJSON() as Array<ISalesItem>;
+    let analysis = currentSalesItem.map((item) => {
+
+        const itemGroup = sourceDatas.filter(x => x.貨號 == item.id);
+        const sales = itemGroup.map(x => x.銷售量).reduce((a, b) => a + b);
+        const restock = itemGroup.map(x => x.進貨量).reduce((a, b) => a + b);
+        const amount = itemGroup.map(x => x.銷售金額).reduce((a, b) => a + b);
+        const defective = itemGroup.map(x => x.丟棄量).reduce((a, b) => a + b);
+
+        return {
+            ...item,
+            sales,
+            amount,
+            defective,
+            restock
+        }
+    });
+
+    return analysis;
+}

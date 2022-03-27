@@ -19,4 +19,9 @@ export class AppController {
   getDailyReport(@Param('month') month: number, @Param('date') date: number): any {
     return this.appService.getReport(month, date);
   }
+
+  @Get('loadXlsx/:start/:end')
+  loadXlsx(@Param('start') start: string, @Param('end') end: string) {
+    this.appService.loadXlsxFile(start, end);
+  }
 }
