@@ -17,4 +17,11 @@ export class AppController {
     @Param('month') month: number) {
     return this.appService.getStockReport(start, end, month);
   }
+
+  @Get('seller/:start/:end')
+  getSellerReport(
+    @Param('start') start: string,
+    @Param('end') end: string) {
+      return this.appService.getSellerReport(start, end);
+  }
 }
