@@ -41,6 +41,11 @@ export const getSalesItemJSON = () => {
     return getJsonFile(filePath);
 }
 
+export const getSellerData = () => {
+    const filePath = path.join("C:/papago/px-api/src/report", "sellersReport.json");
+    return getJsonFile(filePath);
+}
+
 export const generateJsonFile = (path: string, data: any) => {
     try {
         fs.writeFileSync(path, JSON.stringify(data))

@@ -18,10 +18,25 @@ export class AppController {
     return this.appService.getStockReport(start, end, month);
   }
 
-  @Get('seller/:start/:end')
+  @Get('seller/:start/:end/:sid/:eid')
   getSellerReport(
     @Param('start') start: string,
-    @Param('end') end: string) {
-      return this.appService.getSellerReport(start, end);
+    @Param('end') end: string,
+    @Param('sid') sid: number,
+    @Param('eid') eid: number) {
+    return this.appService.getSellerReport(start, end, sid, eid);
+  }
+
+  @Get('sellerRank')
+  getSellerRank() {
+    return this.appService.sellerRank();
+  }
+
+  @Get('itemRank/:start/:end')
+  getItemRank(
+    @Param('start') start: string,
+    @Param('end') end: string
+  ) {
+    return this.appService.getItemRank(start, end);
   }
 }

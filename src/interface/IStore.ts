@@ -31,3 +31,10 @@ export interface ISalesItem {
     id: string;
     name: string;
 }
+
+export interface IRankItem {
+    id: string;
+    name: string;
+    sales: number;
+}
+
