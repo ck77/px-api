@@ -666,7 +666,7 @@
 
 "@nestjs/schedule@^1.1.0":
   version "1.1.0"
-  resolved "https://registry.npmjs.org/@nestjs/schedule/-/schedule-1.1.0.tgz"
+  resolved "https://registry.yarnpkg.com/@nestjs/schedule/-/schedule-1.1.0.tgz#7c8e937399bf5da3d6895e7179ae4bdc4377906e"
   integrity sha512-0QpbwClUildXqlyoaygG+aIQZNNMv31XDyQxX+Ob1zw/3I8+AVrDlBwZHQ+tlhIcJFR8aG+VTH8xwIjXwtS1UA==
   dependencies:
     cron "1.8.2"
@@ -815,7 +815,7 @@
 
 "@types/cron@^1.7.3":
   version "1.7.3"
-  resolved "https://registry.npmjs.org/@types/cron/-/cron-1.7.3.tgz"
+  resolved "https://registry.yarnpkg.com/@types/cron/-/cron-1.7.3.tgz#993db7d54646f61128c851607b64ba4495deae93"
   integrity sha512-iPmUXyIJG1Js+ldPYhOQcYU3kCAQ2FWrSkm1FJPoii2eYSn6wEW6onPukNTT0bfiflexNSRPl6KWmAIqS+36YA==
   dependencies:
     "@types/node" "*"
