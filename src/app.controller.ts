@@ -39,4 +39,9 @@ export class AppController {
   ) {
     return this.appService.getItemRank(start, end);
   }
+
+  @Get('saleReport')
+  getSaleReport() {
+    return this.appService.getSaleReport();
+  }
 }

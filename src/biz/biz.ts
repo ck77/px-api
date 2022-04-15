@@ -1,6 +1,11 @@
 
+import axios from 'axios';
+import * as moment from "moment";
 import { ISourceData, ISalesItem, IStore } from '../interface/IStore';
 import { getSalesItemJSON, fetchXlsxFile, parseBufferToJson } from '../utils/fileUtils';
+
+const SALE_REPORT_API = "http://b2b1.pxstore.com.tw/carryProject.ashx?";
+
 
 export const buildStoreProduct = (sourceDatas: Array<any>) => {
 
@@ -86,24 +91,62 @@ export const buildStockReport = async (sourceDatas: Array<ISourceData>, month: n
     return report;
 }
 
-const productAnalysis = (sourceDatas: Array<ISourceData>) => {
-    const currentSalesItem = getSalesItemJSON() as Array<ISalesItem>;
-    let analysis = currentSalesItem.map((item) => {
+export const buildSaleReport = async () => {
+    let report = [];
 
-        const itemGroup = sourceDatas.filter(x => x.貨號 == item.id);
-        const sales = itemGroup.map(x => x.銷售量).reduce((a, b) => a + b);
-        const restock = itemGroup.map(x => x.進貨量).reduce((a, b) => a + b);
-        const amount = itemGroup.map(x => x.銷售金額).reduce((a, b) => a + b);
-        const defective = itemGroup.map(x => x.丟棄量).reduce((a, b) => a + b);
+    for (let index = 5; index > -1; index--) {
+        let date = moment().subtract(index, 'days').format("YYYY-MM-DD");
 
+        const temp = await dailySaleReport('4015', date);
+        report.push(temp);
+    }
+
+    return report;
+}
+
+const dailySaleReport = async (id: string, date: string) => {
+    const queryObj = {
+        _NAME: 'fap.Query_Farmer',
+        FARMER_ID: id,
+        B_DATE: date,
+        E_DATE: date,
+        GROUP_TYPE: 1,
+        FILE_TYPE: 0
+    }
+
+    const requestUrl = SALE_REPORT_API + buildQueryString(queryObj);
+    const response = await getJsonData(requestUrl);
+
+    const result = response.data.map((x) => {
         return {
-            ...item,
-            sales,
-            amount,
-            defective,
-            restock
+            id: x.ITEM_ID,
+            name: x.ITEM_NAME,
+            sale: x.SAL_QTY,
+            abandon: x.SCP_QTY
         }
     });
 
-    return analysis;
+    return {
+        date,
+        products: result
+    }
+}
+
+const buildQueryString = (params: any) => {
+    return Object.keys(params).map(key => key + '=' + params[key]).join('&');
+}
+
+const getJsonData = async (url: string) => {
+    axios.defaults.timeout = 2147483647;
+
+    try {
+        const res = await axios({
+            url,
+            method: 'GET'
+        });
+
+        return res.data;
+    } catch (error) {
+
+    }
 }

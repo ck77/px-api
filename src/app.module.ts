@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { TasksService } from './schedule/task.service';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { AppService } from './app.service';
     ScheduleModule.forRoot()
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, TasksService],
 })
-export class AppModule {}
+export class AppModule { }

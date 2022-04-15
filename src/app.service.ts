@@ -1,8 +1,9 @@
 import * as path from 'path';
 import axios from 'axios';
+import * as moment from "moment";
 import { Injectable } from '@nestjs/common';
 import { parseBufferToJson, generateJsonFile, fetchXlsxFile, getSellerData } from './utils/fileUtils';
-import { buildStockReport } from './biz/biz';
+import { buildStockReport, buildSaleReport } from './biz/biz';
 import { IRankItem } from './interface/IStore';
 
 @Injectable()
@@ -112,6 +113,15 @@ export class AppService {
     const result = collention.sort(this.compare);
 
     return result;
+  }
+
+  async getSaleReport() {
+
+    const report = await buildSaleReport();
+    const filePath = path.join(this.DIST_FILE_PATH, 'SaleReport.json');
+    generateJsonFile(filePath, report);
+
+    return report
   }
 
   getJsonData = async (url: string) => {
