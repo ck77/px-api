@@ -38,3 +38,8 @@ export interface IRankItem {
     sales: number;
 }
 
+export interface IItemSale {
+    id: string;
+    name: string;
+    sale: Array<{ date: string, count: number }>
+}

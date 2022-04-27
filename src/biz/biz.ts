@@ -122,7 +122,8 @@ const dailySaleReport = async (id: string, date: string) => {
             id: x.ITEM_ID,
             name: x.ITEM_NAME,
             sale: x.SAL_QTY,
-            abandon: x.SCP_QTY
+            abandon: x.SCP_QTY,
+            date
         }
     });
 
